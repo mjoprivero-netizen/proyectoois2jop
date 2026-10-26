@@ -1,12 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>Document</title>
-    <link rel='stylesheet'[href]="main.css">
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Estilizado</title>
     
+    <!-- Importación del framework CSS Bootstrap 5 para estilos responsivos base -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Estilos CSS personalizados para la tarjeta de inicio de sesión -->
+    <style>
+        /* Contenedor principal de la tarjeta de login */
+        .box {
+            max-width: 360px;
+            margin: 50px auto;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
+            font-family: sans-serif;
+            background: #fff;
+        }
+
+        /* Encabezado superior con degradado de colores */
+        .sky {
+            height: 120px;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            position: relative;
+            text-align: center;
+            color: #fff;
+            padding-top: 35px;
+        }
+
+        /* Título dentro del encabezado */
+        .sky h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        /* Subtítulo dentro del encabezado */
+        .sky p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            opacity: .7;
+        }
+
+        /* Efecto de curva blanca decorativa en la parte inferior del encabezado */
+        .sky::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: #fff;
+            border-radius: 50% 50% 0 0;
+        }
+
+        /* Cuerpo interno donde se ubican los campos del formulario */
+        .body {
+            padding: 24px;
+        }
+
+        /* Etiquetas de texto para cada campo */
+        .body label {
+            display: block;
+            font-size: 13px;
+            margin: 12px 0 4px;
+            color: #444;
+        }
+
+        /* Estilo visual para los campos de entrada de texto */
+        .body .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        /* Cambios estéticos cuando el usuario hace foco (clic) en un input */
+        .body .form-control:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: #302b63;
+        }
+
+        /* Estilo personalizado para el botón de acción principal */
+        .body .btn-custom {
+            width: 100%;
+            margin-top: 18px;
+            padding: 11px;
+            background: #302b63;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Efecto de opacidad al pasar el cursor sobre el botón */
+        .body .btn-custom:hover {
+            opacity: .85;
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Tarjeta contenedora centrada en la pantalla -->
+    <div class="box">
+        <!-- Sección visual superior (Header) -->
+        <div class="sky">
+            <h2>Ingreso UDL_IS</h2>
+            <p>Crear gratis una cuenta</p>
+        </div>
+
+        <!-- Sección del formulario de autenticación -->
+        <div class="body">
+            <!-- El formulario cuenta con un ID para ser controlado mediante JavaScript -->
+            <form id="loginForm">
+                <!-- Campo de Nombre (opcional para el registro/login) -->
+                <div>
+                    <label>Nombre</label>
+                    <input type="text" class="form-control" placeholder="Captura nombre de usuario" required>
+                </div>
+
+                <!-- Campo de Email con ID único para capturar su valor -->
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="user_name@dominio.com" required>
+                </div>
+
+                <!-- Campo de Contraseña con ID único para capturar su valor -->
+                <div>
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <!-- Botón de tipo 'submit' para enviar el formulario y activar la validación JS -->
+                <button type="submit" class="btn btn-custom">Enviar datos</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Bootstrap para componentes interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script de JavaScript encargado de la lógica de validación de usuarios -->
+    <script>
+        // Escucha el evento 'submit' (envío) del formulario de inicio de sesión
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            // Evita que la página se recargue por defecto al enviar el formulario
+            e.preventDefault();
+            
+            // Obtiene los valores introducidos por el usuario en los inputs de email y contraseña
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            try {
+                // Realiza una petición asíncrona para cargar el archivo XML con las credenciales permitidas
+                const res = await fetch('usuarios.xml');
+                const xmlText = await res.text();
+                
+                // Parsea el texto plano del XML en un documento navegable por DOM
+                const xmlDoc = new DOMParser().parseFromString(xmlText, 'application/xml');
+
+                // Extrae todos los nodos que contienen información de usuarios
+                const usuarios = Array.from(xmlDoc.querySelectorAll('usuario'));
+                
+                // Comprueba si existe al menos un registro que coincida exactamente con el email y password ingresados
+                const existe = usuarios.some(u =>
+                    u.querySelector('email').textContent === email &&
+                    u.querySelector('password').textContent === pass
+                );
+
+                // Si las credenciales son correctas, redirige al usuario; de lo contrario, muestra una alerta
+                if (existe) {
+                    window.location.href = 'dashboard.html'; // Redirección a la página principal
+                } else {
+                    alert('Usuario o contraseña incorrectos');
+                }
+            } catch (error) {
+                // Captura y muestra errores en caso de que falle la lectura del archivo XML
+                console.error("Error al leer el archivo XML:", error);
+                alert('Ocurrió un error al verificar los datos.');
+            }
+        });
+    </script>
 </body>
 </html>
